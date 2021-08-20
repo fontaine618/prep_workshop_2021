@@ -39,13 +39,21 @@ knitr::kable(mtcars)
 
 ## Chunk options
 
+A R chunk looks like this (with triple backward ticks):
+```
+``{r label, options1=..., option2=...}
+# R Code goes here
+``
+```
+
 You can look [here](https://yihui.org/knitr/options/)
 for a complete list, but here some of the most relevant:
 
 - `echo=T/F` to display the code or not (the output will still appear)
 - `eval=T/F` to evaluate the code or note
-- `warning=T/F` and `error=T/f` to suppress warning and error messages
+- `warning=T/F` and `error=T/F` to suppress warning and error messages
 - `comment="##"` what will appear at the beginning of output lines
+- `cache=T/F` whether to cache results for future compiliation (if they are modified, they will be re-run)
 - `fig.x`: a bunch of options for figures
 
 You can also set options for the whole document using
@@ -63,7 +71,7 @@ for a list!
 ### Header
 
 Header for this file:
-```
+```{yaml}
 ---
 title: "Example"
 author: "Simon Fontaine"
@@ -82,34 +90,46 @@ See [themes](https://www.datadreaming.org/post/r-markdown-theme-gallery/) and [s
 
 You can write math inline: `$\mathbb P[X=x]=\tfrac 12$` gives $\mathbb P[X=x]=\tfrac 12$
 
-You can write math in display:
+You can write math in display (`$$ ... $$` also works):
 
-```
-$$
+
+```{latex}
+\begin{equation}
   \sum_{i=1}^n (2\pi)^{i} \int f_i(x) \,\text{d} x
-$$
+\end{equation}
 ```
-results in:
-$$
+\begin{equation}
   \sum_{i=1}^n (2\pi)^{i} \int f_i(x) \,\text{d} x
-$$
+\end{equation}
 
-To get aligned equations, you need to use `aligned` environments
+To get aligned equations, you need to use `align` environments (`aligned` environments within `$$ ... $$` also works)
 
-```
-$$
-\begin{aligned}
+```{latex}
+\begin{align}
   f_X(x) 
   &= \int f_{X,Y}(x,y) \text{d} y \\
-  &= \int f_Y(y)f_{X\mid Y}(x\mid y) \text{d} y 
-\end{aligned}
-$$
+  &= \int f_Y(y)f_{X\mid Y}(x\mid y) \,\text{d} y 
+\end{align}
 ```
-$$
-\begin{aligned}
+
+\begin{align}
   f_X(x) 
   &= \int f_{X,Y}(x,y) \text{d} y \\
-  &= \int f_Y(y)f_{X\mid Y}(x\mid y) \text{d} y 
-\end{aligned}
-$$
+  &= \int f_Y(y)f_{X\mid Y}(x\mid y) \,\text{d} y 
+\end{align}
+
+
+
+
+### Pros and cons
+
+Pros:
+
+- Much easier/readable syntax than LaTeX
+- Seamless integration of code, output, and math
+
+Cons:
+
+- Math can be a little trickier (cannot define macros in html, but there's a way for pdf output!)
+- More limited than LaTeX
 

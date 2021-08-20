@@ -466,6 +466,7 @@ pre code {
 <li><a href="#markdown-syntax">Markdown syntax</a><ul>
 <li><a href="#header">Header</a></li>
 <li><a href="#latex-math">LaTeX Math</a></li>
+<li><a href="#pros-and-cons">Pros and cons</a></li>
 </ul></li>
 </ul>
 </div>
@@ -963,16 +964,21 @@ pre code {
 </div>
 <div id="chunk-options" class="section level2">
 <h2>Chunk options</h2>
+<p>A R chunk looks like this (with triple backward ticks):</p>
+<pre><code>``{r label, options1=..., option2=...}
+# R Code goes here
+``</code></pre>
 <p>You can look <a href="https://yihui.org/knitr/options/">here</a> for a complete list, but here some of the most relevant:</p>
 <ul>
 <li><code>echo=T/F</code> to display the code or not (the output will still appear)</li>
 <li><code>eval=T/F</code> to evaluate the code or note</li>
-<li><code>warning=T/F</code> and <code>error=T/f</code> to suppress warning and error messages</li>
+<li><code>warning=T/F</code> and <code>error=T/F</code> to suppress warning and error messages</li>
 <li><code>comment=&quot;##&quot;</code> what will appear at the beginning of output lines</li>
+<li><code>cache=T/F</code> whether to cache results for future compiliation (if they are modified, they will be re-run)</li>
 <li><code>fig.x</code>: a bunch of options for figures</li>
 </ul>
 <p>You can also set options for the whole document using</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>knitr<span class="op">::</span>opts_chunk<span class="op">$</span><span class="kw">set</span>(<span class="dt">echo =</span> <span class="ot">TRUE</span>, <span class="dt">comment =</span> <span class="st">&quot;#&gt;#&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>knitr<span class="op">::</span>opts_chunk<span class="op">$</span><span class="kw">set</span>(<span class="dt">echo =</span> <span class="ot">TRUE</span>, <span class="dt">comment =</span> <span class="st">&quot;#&gt;#&quot;</span>)</span></code></pre></div>
 </div>
 <div id="markdown-syntax" class="section level2">
 <h2>Markdown syntax</h2>
@@ -980,43 +986,52 @@ pre code {
 <div id="header" class="section level3">
 <h3>Header</h3>
 <p>Header for this file:</p>
-<pre><code>---
-title: &quot;Example&quot;
-author: &quot;Simon Fontaine&quot;
-date: &quot;20/08/2021&quot;
-output: 
-  html_document:        # options for html output 
-    theme: cosmo        # theme
-    highlight: kate     # syntax highlighting
-    toc: True           # add a table of content
----</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1"></a><span class="pp">---</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Example&quot;</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Simon Fontaine&quot;</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;20/08/2021&quot;</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="fu">output</span><span class="kw">:</span><span class="at"> </span></span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="at">  </span><span class="fu">html_document</span><span class="kw">:</span><span class="co">        # options for html output </span></span>
+<span id="cb7-7"><a href="#cb7-7"></a><span class="at">    </span><span class="fu">theme</span><span class="kw">:</span><span class="at"> cosmo</span><span class="co">        # theme</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="at">    </span><span class="fu">highlight</span><span class="kw">:</span><span class="at"> kate</span><span class="co">     # syntax highlighting</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a><span class="at">    </span><span class="fu">toc</span><span class="kw">:</span><span class="at"> </span><span class="ch">True</span><span class="co">           # add a table of content</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a><span class="pp">---</span></span></code></pre></div>
 <p>See <a href="https://www.datadreaming.org/post/r-markdown-theme-gallery/">themes</a> and <a href="https://eranraviv.com/syntax-highlighting-style-in-rmarkdown/">syntax highlighting styles</a>.</p>
 </div>
 <div id="latex-math" class="section level3">
 <h3>LaTeX Math</h3>
 <p>You can write math inline: <code>$\mathbb P[X=x]=\tfrac 12$</code> gives <span class="math inline">\(\mathbb P[X=x]=\tfrac 12\)</span></p>
-<p>You can write math in display:</p>
-<pre><code>$$
+<p>You can write math in display (<code>$$ ... $$</code> also works):</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode latex"><code class="sourceCode latex"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">\begin</span>{<span class="ex">equation</span>}</span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="ss">  </span><span class="sc">\sum</span><span class="ss">_{i=1}^n (2</span><span class="sc">\pi</span><span class="ss">)^{i} </span><span class="sc">\int</span><span class="ss"> f_i(x) </span><span class="sc">\,\text</span>{d}<span class="ss"> x</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="kw">\end</span>{<span class="ex">equation</span>}</span></code></pre></div>
+<p><span class="math display">\[\begin{equation}
   \sum_{i=1}^n (2\pi)^{i} \int f_i(x) \,\text{d} x
-$$</code></pre>
-<p>results in: <span class="math display">\[
-  \sum_{i=1}^n (2\pi)^{i} \int f_i(x) \,\text{d} x
-\]</span></p>
-<p>To get aligned equations, you need to use <code>aligned</code> environments</p>
-<pre><code>$$
-\begin{aligned}
+\end{equation}\]</span></p>
+<p>To get aligned equations, you need to use <code>align</code> environments (<code>aligned</code> environments within <code>$$ ... $$</code> also works)</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode latex"><code class="sourceCode latex"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">\begin</span>{<span class="ex">align</span>}</span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="ss">  f_X(x) </span></span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="ss">  &amp;= </span><span class="sc">\int</span><span class="ss"> f_{X,Y}(x,y) </span><span class="sc">\text</span>{d}<span class="ss"> y </span><span class="sc">\\</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a><span class="ss">  &amp;= </span><span class="sc">\int</span><span class="ss"> f_Y(y)f_{X</span><span class="sc">\mid</span><span class="ss"> Y}(x</span><span class="sc">\mid</span><span class="ss"> y) </span><span class="sc">\,\text</span>{d}<span class="ss"> y </span></span>
+<span id="cb9-5"><a href="#cb9-5"></a><span class="kw">\end</span>{<span class="ex">align</span>}</span></code></pre></div>
+<p><span class="math display">\[\begin{align}
   f_X(x) 
   &amp;= \int f_{X,Y}(x,y) \text{d} y \\
-  &amp;= \int f_Y(y)f_{X\mid Y}(x\mid y) \text{d} y 
-\end{aligned}
-$$</code></pre>
-<p><span class="math display">\[
-\begin{aligned}
-  f_X(x) 
-  &amp;= \int f_{X,Y}(x,y) \text{d} y \\
-  &amp;= \int f_Y(y)f_{X\mid Y}(x\mid y) \text{d} y 
-\end{aligned}
-\]</span></p>
+  &amp;= \int f_Y(y)f_{X\mid Y}(x\mid y) \,\text{d} y 
+\end{align}\]</span></p>
+</div>
+<div id="pros-and-cons" class="section level3">
+<h3>Pros and cons</h3>
+<p>Pros:</p>
+<ul>
+<li>Much easier/readable syntax than LaTeX</li>
+<li>Seamless integration of code, output, and math</li>
+</ul>
+<p>Cons:</p>
+<ul>
+<li>Math can be a little trickier (cannot define macros in html, but there’s a way for pdf output!)</li>
+<li>More limited than LaTeX</li>
+</ul>
 </div>
 </div>
 
