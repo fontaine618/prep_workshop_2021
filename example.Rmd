@@ -1,0 +1,115 @@
+---
+title: "R Markdown Example"
+author: "Simon Fontaine"
+date: "20/08/2021"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: kate
+    toc: True
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = "#")
+```
+
+## R Markdown
+
+You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure}
+plot(pressure)
+```
+
+## Displaying data frames
+
+Markdown does some pretty formatting of data frames into tables:
+
+```{r df}
+knitr::kable(mtcars)
+```
+
+## Chunk options
+
+You can look [here](https://yihui.org/knitr/options/)
+for a complete list, but here some of the most relevant:
+
+- `echo=T/F` to display the code or not (the output will still appear)
+- `eval=T/F` to evaluate the code or note
+- `warning=T/F` and `error=T/f` to suppress warning and error messages
+- `comment="##"` what will appear at the beginning of output lines
+- `fig.x`: a bunch of options for figures
+
+You can also set options for the whole document using
+
+```{r eval=F}
+knitr::opts_chunk$set(echo = TRUE, comment = "#>#")
+```
+
+## Markdown syntax
+
+See [this markdown cheat sheet](https://www.markdown-cheatsheet.com/) 
+for a list!
+
+
+### Header
+
+Header for this file:
+```
+---
+title: "Example"
+author: "Simon Fontaine"
+date: "20/08/2021"
+output: 
+  html_document:        # options for html output 
+    theme: cosmo        # theme
+    highlight: kate     # syntax highlighting
+    toc: True           # add a table of content
+---
+```
+See [themes](https://www.datadreaming.org/post/r-markdown-theme-gallery/) and [syntax highlighting styles](https://eranraviv.com/syntax-highlighting-style-in-rmarkdown/).
+
+### LaTeX Math 
+
+
+You can write math inline: `$\mathbb P[X=x]=\tfrac 12$` gives $\mathbb P[X=x]=\tfrac 12$
+
+You can write math in display:
+
+```
+$$
+  \sum_{i=1}^n (2\pi)^{i} \int f_i(x) \,\text{d} x
+$$
+```
+results in:
+$$
+  \sum_{i=1}^n (2\pi)^{i} \int f_i(x) \,\text{d} x
+$$
+
+To get aligned equations, you need to use `aligned` environments
+
+```
+$$
+\begin{aligned}
+  f_X(x) 
+  &= \int f_{X,Y}(x,y) \text{d} y \\
+  &= \int f_Y(y)f_{X\mid Y}(x\mid y) \text{d} y 
+\end{aligned}
+$$
+```
+$$
+\begin{aligned}
+  f_X(x) 
+  &= \int f_{X,Y}(x,y) \text{d} y \\
+  &= \int f_Y(y)f_{X\mid Y}(x\mid y) \text{d} y 
+\end{aligned}
+$$
+

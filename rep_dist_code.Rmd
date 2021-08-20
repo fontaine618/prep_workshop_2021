@@ -1,0 +1,447 @@
+---
+title: "Reproducible and Distributable Code"
+author: "Simon Fontaine"
+date: "19/08/2021"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: kate
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+A collection of dos and don'ts, tips and tricks in programming to make your code
+more reproducible, readable and reusable distributable!
+
+We'll be working in R, but most of these apply to any language!
+
+## Dos and Don'ts
+
+<!-- ======================================================================= -->
+### DON'T: hard-code parameters, dimensions, constants
+
+Example: generating a $100\times 10$ matrix of uniform covariates
+```{r}
+X = matrix(runif(100*10), nrow=100, ncol=10)
+```
+
+### DO: extract in variables
+```{r}
+n = 100
+p = 10
+X = matrix(runif(n*p), nrow=n, ncol=p)
+```
+
+<!-- ======================================================================= -->
+### DON'T: copy/paste
+Example: generate data from different parameters, then fit a simple linear regression.
+```{r}
+set.seed(0)
+x = runif(n)
+y = 1 + 2*x + rnorm(n)
+fit = lm(y ~ x)
+print(coef(fit))
+x = runif(n)
+y = -1 + 1*x + rnorm(n)
+fit = lm(y ~ x)
+print(coef(fit))
+```
+
+### DO: extract functions
+
+With the same number of lines, we now have reusable code!
+
+```{r}
+generate_data_and_fit = function(n, a, b){
+  x = runif(n)
+  y = a + b*x + rnorm(n)
+  fit = lm(y~x)
+  return(fit)
+}
+set.seed(0)
+fit1 = generate_data_and_fit(n, 1, 2)
+print(coef(fit1))
+fit2 = generate_data_and_fit(n, -1, 1)
+print(coef(fit2))
+```
+
+
+<!-- ======================================================================= -->
+### DON'T: use global variables within functions
+
+While your logic might still produce the correct output, this often lead to errors
+and hard to understand code.
+
+```{r}
+set.seed(0)
+x = runif(n)
+y = 1 + 2*x + rnorm(n)
+fit_model = function(){
+  return(coef(lm(y ~ x)))
+}
+fit_model()
+y = 1 + 2*x + rnorm(n)
+fit_model()
+```
+
+
+Similarly, watch out for local/global variables with the same name; this 
+produces confusing code to read and may not behave as you expect.
+
+```{r}
+x = 3
+fn = function(){
+  x = 4
+}
+print(x)
+fn()
+print(x)
+```
+
+### DO: pass everything as arguments
+
+We get the same output as above, but this is much clearer now. This is especially
+important if there is more space between calls.
+
+```{r}
+set.seed(0)
+x = runif(n)
+y = 1 + 2*x + rnorm(n)
+fit_model = function(x, y){
+  return(coef(lm(y ~ x)))
+}
+fit_model(x, y)
+y = 1 + 2*x + rnorm(n)
+fit_model(x, y)
+```
+
+
+
+<!-- ======================================================================= -->
+### DON'T: use comment/uncomment for multiple calls
+
+```{r}
+set.seed(0)
+a = 1; b = 2
+# a = -1; b = 1
+x = runif(n)
+y = a + b*x + rnorm(n)
+fit = lm(y~x)
+print(coef(fit))
+```
+
+(comment/uncomment in the editor to switch cases)
+
+```{r}
+# a = 1; b = 2
+a = -1; b = 1
+x = runif(n)
+y = a + b*x + rnorm(n)
+fit = lm(y~x)
+print(coef(fit))
+```
+
+
+For a single line and only two cases, this doesn't seem too bad, but:
+
+- Imagine you have a few lines to switch at multiple locations; it becomes hard to remember what to switch
+- Imagine someone else has to run your code
+
+### DO: extract functions
+
+```{r}
+generate_data_and_fit = function(n, a, b){
+  x = runif(n)
+  y = a + b*x + rnorm(n)
+  fit = lm(y~x)
+  return(fit)
+}
+set.seed(0)
+coef(generate_data_and_fit(n, 1, 2))
+coef(generate_data_and_fit(n, -1, 1))
+```
+
+
+
+<!-- ======================================================================= -->
+### DON'T: write big functions
+
+Example: compare estimates from two models
+
+```{r}
+generate_data_and_compare = function(n, a, b){
+  x = runif(n)
+  y = a + b*x + rnorm(n)
+  slr = lm(y ~ x)
+  intercept_slr = coef(slr)[1]
+  mean = lm(y ~ 1)
+  intercept_mean = coef(mean)[1]
+  return(intercept_slr - intercept_mean)
+}
+set.seed(0)
+generate_data_and_compare(n, 1, 2)
+```
+
+
+### DO: split into steps
+
+```{r}
+generate_data = function(n, a, b){
+  x = runif(n)
+  y = a + b*x + rnorm(n)
+  return(data.frame(x, y))
+}
+get_intercept = function(model){
+  return(coef(model)[1])
+}
+compare_models = function(df){
+  slr = lm(y~x, data=df)
+  mean = lm(y~1, data=df)
+  return(get_intercept(slr) - get_intercept(mean))
+}
+set.seed(0)
+df = generate_data(n, 1, 2)
+compare_models(df)
+```
+
+
+
+
+<!-- ======================================================================= -->
+### DON'T: chain too many operations
+
+```{r}
+set.seed(0)
+x = runif(n)
+y = 1 + 2*x + rnorm(n)
+coef(lm(y~x))[1] - coef(lm(y~1))[1]
+```
+
+
+### DO: use intermediary assignments
+
+```{r}
+slr = lm(y ~ x)
+intercept_slr = coef(slr)[1]
+mean = lm(y ~ 1)
+intercept_mean = coef(mean)[1]
+intercept_slr - intercept_mean
+```
+
+
+
+
+<!-- ======================================================================= -->
+### DO: spell out named arguments
+
+R (& Python) allows for both ordered unnamed arguments and named arguments.
+It's hard to spell out "rule", but
+
+- optional arguments (those with defaults) should be named
+- large numbers of arguments should be named (possibly beyond the first few ones that are obvious)
+- this mostly applies to larger functions, e.g., those in packages
+
+```{r}
+lm(y~x, data=df, qr=FALSE)
+```
+
+
+
+<!-- ======================================================================= -->
+## Tips and tricks
+<!-- ======================================================================= -->
+### Variable and function name
+
+- use meaningful names, but keep it short
+- be consistent
+<!-- ======================================================================= -->
+### Use visual aides
+
+Increase readability by:
+
+- using consistent indentation
+- using empty lines and/or comments to separate steps
+- using consistent delimiters and spacing
+
+This is unreadable:
+
+```{r}
+generate_data = function(n, a, b){
+x = runif(n)
+y = a + b*x + rnorm(n)
+return(data.frame(x, y))}
+get_intercept = function(model){return(coef(model)[1])}
+compare_models = function(df){
+slr = lm(y~x, data=df)
+mean = lm(y~1, data=df)
+return(get_intercept(slr) - get_intercept(mean))}
+set.seed(0)
+df = generate_data(n, 1, 2)
+compare_models(df)
+```
+
+This is much clearer
+
+```{r}
+# helper functions
+generate_data = function(n, a, b){
+  x = runif(n)
+  y = a + b * x + rnorm(n)
+  return(data.frame(x, y))
+}
+get_intercept = function(model){
+  return(coef(model)[1])
+}
+compare_models = function(df){
+  slr = lm(y ~ x, data=df)
+  mean = lm(y ~ 1, data=df)
+  return(get_intercept(slr) - get_intercept(mean))
+}
+
+# run comparison
+set.seed(0)
+df = generate_data(n, 1, 2)
+compare_models(df)
+```
+
+<!-- ======================================================================= -->
+### Comment what you are doing
+
+- If you use meaningful names for variables and functions, you don't need too much comments
+- At the same time, it's rare that there are too much comments
+- Write comments for steps that are not obvious
+
+This is unnecessary unless you are writing documentation:
+
+```{r}
+# function to generate data
+# single covariate with uniform distribution on [0,1]
+# outcome y=a+bx+e for some N(0,1) error
+generate_data = function(n, a, b){
+  x = runif(n)
+  y = a + b * x + rnorm(n)
+  return(data.frame(x, y))
+}
+# function to extract the intercept from a model
+get_intercept = function(model){
+  return(coef(model)[1])
+}
+# function that compute a OLS model using the covariate
+# and a mean model and returns the difference in estimated intercept
+compare_models = function(df){
+  slr = lm(y ~ x, data=df)
+  mean = lm(y ~ 1, data=df)
+  return(get_intercept(slr) - get_intercept(mean))
+}
+
+# set seed for replicability
+set.seed(0)
+# generate the data
+df = generate_data(n, 1, 2)
+# get difference in intercept
+compare_models(df)
+```
+
+<!-- ======================================================================= -->
+### Be as independent of your setup as possible
+
+If you need to read/write files:
+
+- use relative paths
+- have a few lines at the top that are easily changed
+
+Don't do this:
+```{r eval=FALSE}
+# line 100
+read.csv("/home/simon/Documents/prep_workshop_2021/data1.csv")
+
+# line 200
+read.csv("/home/simon/Documents/prep_workshop_2021/data2.csv")
+
+# line 300
+write.csv("/home/simon/Documents/prep_workshop_2021/results.csv")
+```
+
+Do this:
+```{r eval=FALSE}
+# line 1
+setwd("/home/simon/Documents/prep_workshop_2021/")
+
+# line 101
+read.csv("data1.csv")
+
+# line 201
+read.csv("data2.csv")
+
+# line 301
+write.csv("results.csv")
+```
+
+Or this:
+```{r eval=FALSE}
+# line 1
+PATH = "/home/simon/Documents/prep_workshop_2021/"
+
+# line 101
+read.csv(paste0(PATH, "data1.csv"))
+
+# line 201
+read.csv(paste0(PATH, "data2.csv"))
+
+# line 301
+write.csv(paste0(PATH, "results.csv"))
+```
+
+
+
+<!-- ======================================================================= -->
+### Plan ahead
+
+It can be useful to draft the outline of your code before actually writing it:
+
+- using comments
+- using placeholder functions
+
+This can help you think about what steps and functions you will need; what
+is a parameter, what should be the arguments, etc.
+
+```{r eval=FALSE}
+# setup section
+
+
+# parameters
+
+
+# helper functions
+generate_data = function(n, a, b){
+  return(NULL)
+}
+get_comparison = function(df){
+  return(NULL)
+}
+
+
+# run experiment
+
+
+# store results
+
+```
+
+
+
+<!-- ======================================================================= -->
+### Misc
+
+- Split into different files as much as possible
+- Refresh your environment once in a while and re-run the whole file to check if
+you wrote things dependent on global variables that are no longer defined
+- Use seeding whenever you randomize things
+
+
+
+
